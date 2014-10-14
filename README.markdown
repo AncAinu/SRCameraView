@@ -1,17 +1,17 @@
 SRCameraView
 ============
 
-Written for the iOS 7.1 SDK, but *should* be able to be deployed as far back as iOS 6.0 (this is untested, however). There is **no** support for iOS 5.
+Written for the iOS 8.0 SDK, but supports deployment to iOS 7.1. There is no explicit support for iOS 6 or earlier, but it may work.
 
 How To Install
 --------------
 
 1. Create an iOS project in Xcode.
 2. Add the following frameworks:  
-	CoreGraphics (if it isn't already)
-	AVFoundation
-	CoreVideo
-	CoreMedia
+  - CoreGraphics (if it isn't already)
+  - AVFoundation
+  - CoreVideo
+  - CoreMedia
 3. Add all the files in the source/ directory to your project. Put the headers (.h) and Objective-C source (.m) in whatever group you want. Put the images (.png) in the Supporting Files group.
 
 How to Use
