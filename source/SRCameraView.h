@@ -29,6 +29,8 @@
 @interface SRCameraView : UIView <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @property (nonatomic, readonly) AVCaptureSession *captureSession;
+/// Change capture quality may significantly change time necessary to capture an image from camera stream. Default : AVCaptureSessionPresetPhoto
+@property (nonatomic, strong) NSString *captureQuality;
 
 @property (nonatomic, readonly) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, copy) NSString *previewLayerGravity;
@@ -80,6 +82,7 @@
 - (AVCaptureFlashMode)currentCameraFlashMode;
 
 // Completion block will always be executed on the main thread
-- (void)takePhotoWithCompletionBlock:(void (^)(UIImage *photo, UIImage *preview))takePhotoCompletionBlock;
+- (void)takePhotoAndPreviewWithCompletionBlock:(void (^)(UIImage *photo, UIImage *preview))takePhotoCompletionBlock;
+- (void)takePhotoWithCompletionBlock:(void (^)(UIImage *photo))takePhotoCompletionBlock;
 
 @end

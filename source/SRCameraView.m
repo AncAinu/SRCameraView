@@ -72,14 +72,19 @@ static void *kSRCameraViewObserverContext = &kSRCameraViewObserverContext;
 
 #pragma mark - Init & Dealloc
 
-- (id)initWithFrame:(CGRect)frame
+- (instancetype)init
 {
-    if(self = [super initWithFrame:frame]) {
+	return [self initWithFrame:CGRectZero];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+	if(self = [super initWithFrame:frame]) {
 		if(![self sharedSetup]) {
 			NSLog(@"Since current device has no camera, SRCameraView won't display anything and will be unusable.");
 		}
-    }
-    return self;
+	}
+	return self;
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder
@@ -207,6 +212,18 @@ static void *kSRCameraViewObserverContext = &kSRCameraViewObserverContext;
 }
 
 #pragma mark - Camera Handling
+- (NSString *)captureQuality {
+	return _captureSession.sessionPreset;
+}
+
+- (void)setCaptureQuality:(NSString *)captureQuality {
+	if ([_captureSession canSetSessionPreset:captureQuality]) {
+		_captureSession.sessionPreset = captureQuality;
+	}
+	else {
+		NSLog(@"Warning : capture quality invalid for device camera, the quality will remain with previous setting for %@", self);
+	}
+}
 
 - (void)scanStillImageConnections
 {
@@ -267,8 +284,7 @@ static void *kSRCameraViewObserverContext = &kSRCameraViewObserverContext;
 	}
 }
 
-- (void)takePhotoWithCompletionBlock:(void (^)(UIImage *, UIImage *))takePhotoCompletionBlock
-{
+- (void)takePhotoWithPreview:(BOOL)withPreview completionBlock:(void (^)(UIImage *, UIImage *))takePhotoCompletionBlock {
 	UIImage *(^completionBlock)(UIImage *photo, UIImage *preview) = [takePhotoCompletionBlock copy];
 	
 	self.paused = YES;
@@ -282,15 +298,43 @@ static void *kSRCameraViewObserverContext = &kSRCameraViewObserverContext;
 			 UIImage *photo = [UIImage imageWithCMSampleBuffer:imageDataSampleBuffer];
 			 CFRelease(imageDataSampleBuffer);
 			 
-			 UIImage *previewImage = [UIImage image:photo scaledToSize:self.previewPausedView.frame.size scaleMode:kSRImageProcessScaleAspectFill];
+			 if (withPreview) {
+				 UIImage *previewImage = [UIImage image:photo scaledToSize:self.previewPausedView.frame.size scaleMode:kSRImageProcessScaleAspectFill];
+				 
+				 dispatch_async(dispatch_get_main_queue(), ^{
+					 self.previewPausedView.image = previewImage;
+					 completionBlock(photo, previewImage);
+				 });
+			 }
+			 else {
+				 dispatch_async(dispatch_get_main_queue(), ^{
+					 completionBlock(photo, nil);
+				 });
+				 
+				 UIImage *previewImage = [UIImage image:photo scaledToSize:self.previewPausedView.frame.size scaleMode:kSRImageProcessScaleAspectFill];
+				 
+				 dispatch_async(dispatch_get_main_queue(), ^{
+					 self.previewPausedView.image = previewImage;
+				 });
+			 }
 			 
-			 dispatch_async(dispatch_get_main_queue(), ^{
-				 self.previewPausedView.image = previewImage;
-				 completionBlock(photo, previewImage);
-			 });
 		 });
 	 }];
-	
+}
+
+- (void)takePhotoWithCompletionBlock:(void (^)(UIImage *))takePhotoCompletionBlock {
+	UIImage *(^completionBlock)(UIImage *photo) = [takePhotoCompletionBlock copy];
+	[self takePhotoWithPreview:NO completionBlock:^(UIImage *photo, UIImage *preview) {
+		completionBlock(photo);
+	}];
+}
+
+- (void)takePhotoAndPreviewWithCompletionBlock:(void (^)(UIImage *, UIImage *))takePhotoCompletionBlock
+{
+	UIImage *(^completionBlock)(UIImage *photo, UIImage *preview) = [takePhotoCompletionBlock copy];
+	[self takePhotoWithPreview:NO completionBlock:^(UIImage *photo, UIImage *preview) {
+		completionBlock(photo, preview);
+	}];
 }
 
 #pragma mark - Key-Value Observing
