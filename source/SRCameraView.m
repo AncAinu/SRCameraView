@@ -253,6 +253,10 @@ static void *kSRCameraViewObserverContext = &kSRCameraViewObserverContext;
 	_captureSession.sessionPreset = AVCaptureSessionPresetPhoto; // Since we don't know if the desired quality is available (may crash) we set back full quality
 	[self.captureSession addInput:camera.deviceInput];
 	
+	if ([_captureSession canSetSessionPreset:_captureQualityMaximum]) { // Then we set the maximum quality defined
+		_captureSession.sessionPreset = _captureQualityMaximum;
+	}
+	
 	[self.captureSession commitConfiguration];
 	
 	_currentCamera = camera;

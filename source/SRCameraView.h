@@ -31,6 +31,8 @@
 @property (nonatomic, readonly) AVCaptureSession *captureSession;
 /// Change capture quality may significantly change time necessary to capture an image from camera stream. Default : AVCaptureSessionPresetPhoto
 @property (nonatomic, strong) NSString *captureQuality;
+/// Set a maximum capture quality so if the capture quality change (without triger captureQuality - when swapping camera mostly), if the selected quality isn't available, it will switch to full quality (which is supposed to be less). Default : AVCaptureSessionPresetPhoto
+@property (nonatomic, strong) NSString *captureQualityMaximum;
 
 @property (nonatomic, readonly) AVCaptureVideoPreviewLayer *previewLayer;
 @property (nonatomic, copy) NSString *previewLayerGravity;
