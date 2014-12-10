@@ -250,6 +250,7 @@ static void *kSRCameraViewObserverContext = &kSRCameraViewObserverContext;
 		[self.captureSession removeInput:input];
 	}
 	
+	_captureSession.sessionPreset = AVCaptureSessionPresetPhoto; // Since we don't know if the desired quality is available (may crash) we set back full quality
 	[self.captureSession addInput:camera.deviceInput];
 	
 	[self.captureSession commitConfiguration];
@@ -284,7 +285,7 @@ static void *kSRCameraViewObserverContext = &kSRCameraViewObserverContext;
 	}
 }
 
-- (void)takePhotoWithPreview:(BOOL)withPreview completionBlock:(void (^)(UIImage *, UIImage *))takePhotoCompletionBlock {
+- (void)takePhotoWithPreview:(BOOL)withPreview completionBlock:(void (^)(UIImage *, UIImage *))takePhotoCompletionBlock {
 	UIImage *(^completionBlock)(UIImage *photo, UIImage *preview) = [takePhotoCompletionBlock copy];
 	
 	self.paused = YES;
